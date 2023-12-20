@@ -5,18 +5,17 @@
 # Setup -------------------------------------------------------------------
 {
   rm(list = ls())
-  PROJHOME = normalizePath(getwd())
-  source(file.path(PROJHOME, "scripts/Source.R"))
+  source("scripts/Source.R")
   
   # Data location
-  rda.place <- file.path(PROJHOME, "data", "rda")
+  rda.place <- "data/rda"
   
   #plot location
-  movement.dir <- file.path(PROJHOME, "plot/move_pause")
+  movement.dir <- "plot/move_pause"
   if (!dir.exists(movement.dir)) {dir.create(movement.dir)}
   
   #other output locations
-  other.dir <- file.path(PROJHOME, "plot/other")
+  other.dir <- "plot/other"
   if (!dir.exists(other.dir)) {dir.create(other.dir)}
   
   # Load data

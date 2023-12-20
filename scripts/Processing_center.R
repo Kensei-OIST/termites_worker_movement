@@ -6,14 +6,13 @@
 # Setup -------------------------------------------------------------------
 {
   rm(list = ls())
-  PROJHOME = normalizePath(getwd())
-  source(file.path(PROJHOME, "scripts/Source.R"))
+  source("scripts/Source.R")
   
   # Data location
-  rda.place <- file.path(PROJHOME, "data", "rda")
-  raw.place <- file.path(PROJHOME, "data", "raw")
-  plot.place <- file.path(PROJHOME, "plot")
-  if (!dir.exists(plot_dir)) {dir.create(plot.place)}
+  rda.place <- file.path("data", "rda")
+  raw.place <- file.path("data", "raw")
+  plot.place <- file.path("plot")
+  if (!dir.exists(plot.place)) {dir.create(plot.place)}
   
   # Nesting information
   Species.info <- data.frame(
