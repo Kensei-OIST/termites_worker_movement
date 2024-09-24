@@ -5,7 +5,7 @@
 
 {
   rm(list = ls())
-  source(file.path(PROJHOME, "20240912/scripts_20240912/Source_20240912.R"))
+  source("scripts/Source.R")
   
   #plot location
   centerdis.dir <- "output/center_distance"
@@ -87,12 +87,13 @@
   summary(df.inper$inper)
 }
 
+save(df.inper, file = "data_fmt/df_wallfollowing.rda")
 
 
 
 # LMM -------------------------------------------------------------
-  
-
+load("data_fmt/df_wallfollowing.rda")
+df.inper$Forager <- df.inper$Nesting != "OP"
 #Anova
 { # inner time ~ species/nesting
   # logit transformation
@@ -100,8 +101,8 @@
   df.inper$inper.logit = log((y1) / (1-(y1)))
 
   #create model
-  sink(file.path(other.place, "inper.nesting_Anova.txt"))
-  r1 <- lmer(inper.logit ~ Nesting + (1|Species/Colony),  data = df.inper)
+  sink("output/inper.nesting_Anova.txt")
+  r1 <- lmer(inper.logit ~ Forager + (1|Species/Colony),  data = df.inper)
   summary(r1)
   Anova(r1, type=2) 
   multicomparison<-glht(r1,linfct=mcp(Nesting="Tukey"))
