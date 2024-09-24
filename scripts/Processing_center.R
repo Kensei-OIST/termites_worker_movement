@@ -6,7 +6,7 @@
 # Setup -------------------------------------------------------------------
 {
   rm(list = ls())
-  source("scripts_20240912/Source_20240912.R")
+  source("scripts/Source.R")
 
   # Nesting information
   Species.info <- data.frame(
@@ -163,8 +163,14 @@
     }
   }  
   save(df.traj, file = "data_fmt/Species_Trajectory_Data.rda")
+  data.all <- subset(data.all, select = -c(x,y,angle,step.bl.sp,trajlen,trajlen.bl))
+  data.all$centerdis <- round(data.all$centerdis, 2)
+  data.all$step      <- round(data.all$step, 2)
+  data.all$step.bl   <- round(data.all$step.bl, 2)
   save(data.all, file = "data_fmt/All_Trajectory_Data.rda")
 }
+
+
 
 # !!! Unknown code chunk
 # Remove data based on trajectory--------------------------------------------------------

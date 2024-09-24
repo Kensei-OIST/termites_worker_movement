@@ -7,7 +7,7 @@
 # Setup -------------------------------------------------------------------
 {
   rm(list = ls())
-  source("scripts_20240912/Source_20240912.R")
+  source("scripts/Source.R")
   
   # Load data
   load("data_fmt/All_Trajectory_Data.rda")
@@ -37,7 +37,6 @@
       
       df.temp$speed.all <- df.temp$step / 0.2 # 0.2 sec = 1 frame, speed = mm/sec
       df.temp$speed.bl.all <- df.temp$step.bl / 0.2   # speed normalized by BL of individual
-      df.temp$speed.meanBL.all <- df.temp$step.bl.sp / 0.2  # speed normalized by mean BL of species
       
       mean_speed.all <- mean(df.temp$speed.all[!is.na(df.temp$speed.all)], na.rm = T)
       sd_speed.all <- sd(df.temp$speed.all[!is.na(df.temp$speed.all)], na.rm = T)
@@ -73,6 +72,8 @@
   
   save(df.all.filtered, file="data_fmt/All_Trajectory_Data_filtered.norm.rda")
 }
+
+
 # ---------------------------------------------------------------------------- #
 
 # Obtain move/pause thresholds -------------------------------------------------
@@ -248,12 +249,13 @@
   
 } 
 
-# LMM for mean velocity; pause time vs Nesting, Species ------------------------
+load("data_fmt/Duration_Summarize_all_norm.rda")
+df.sum_mean_duration$Forager <- df.sum_mean_duration$Nesting != "OP"
+
+# LMM for mean speed (the total distance traveled over the total time spent moving) vs Nesting, Species ------------------------
 {
   # mean speed
   sink(file.path(other.place,"mean_speed_norm_LMM_step_maxpeak02plus01.txt"))
-  
-  df.sum_mean_duration$Forager <- df.sum_mean_duration$Nesting != "OP"
   
   # speed in mm/sec while moving
   r <- lmer(mean_speed ~ Forager + (1|Species/Colony), data=df.sum_mean_duration)
@@ -299,37 +301,22 @@
   sink()
 }
 
-## not checked L302-330 (9/20/2024)
-##TODO: confirm what are mean_speed and mean_speed_move
-
-# LMM for total pausing time vs Nesting, Species ------------------------
-sink(file.path(other.place,"mean_speed_move_norm_LMM_step_maxpeak02plus01.txt"))
-
-r <- lmer(mean_speed_move ~ Nesting + (1|Species/Colony), data=df.sum_mean_duration)
-Anova(r)
-multicomparison<-glht(r,linfct=mcp(Nesting="Tukey"))
-summary(multicomparison)
-
-r <- lmer(mean_speed_move ~ Species + (1|Colony), data=df.sum_mean_duration)
-Anova(r)
-multicomparison<-glht(r,linfct=mcp(Species="Tukey"))
-summary(multicomparison)
-
-r <- lmer(mean_speed_move_norm ~ Nesting + (1|Species/Colony), data=df.sum_mean_duration)
-Anova(r)
-multicomparison<-glht(r,linfct=mcp(Nesting="Tukey"))
-summary(multicomparison)
-
-r <- lmer(mean_speed_move_norm ~ Species + (1|Colony), data=df.sum_mean_duration)
-Anova(r)
-multicomparison<-glht(r,linfct=mcp(Species="Tukey"))
-summary(multicomparison)
-
-sink()
-
+# LMM for mean speed (exclusively on the distance covered during movement steps, ignoring pause times and ensuring only movement data contributes to the calculation) ------------------------
+{
+  sink(file.path(other.place,"mean_speed_move_norm_LMM_step_maxpeak02plus01.txt"))
+  
+  r <- lmer(mean_speed_move_norm ~ Forager + (1|Species/Colony), data=df.sum_mean_duration)
+  Anova(r)
+  
+  r <- lmer(mean_speed_move_norm ~ Species + (1|Colony), data=df.sum_mean_duration)
+  Anova(r)
+  multicomparison<-glht(r,linfct=mcp(Species="Tukey"))
+  summary(multicomparison)
+  
+  sink()
+}
 
 # boxplot for summed move pause in minutes-------------------------------------------------------------
-
 {
   Name.list = unique(df.sum_mean_duration$Name)
   df.sum_mean_duration$Nesting <- factor(df.sum_mean_duration$Nesting , levels=c("OP", "MP", "CP"))
